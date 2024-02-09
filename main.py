@@ -4,44 +4,50 @@ from winner import winner
 from hashing import Hmac
 from help import Table
 
-# Initialize colorama
 init()
 
-# Output colors
 RESET = Style.RESET_ALL
 RED = Fore.RED
 GREEN = Fore.GREEN
 
 
-def make_move():
-    # Generate computer's move
-    computer = Hmac(moves)
-    print('HMAC:', computer.get_hmac())
-
-    # Display the menu
+def send_menu():
     print('Available moves:')
     for i, move in enumerate(moves):
         print(f'{i + 1} - {move}')
     print('0 - Exit')
     print('? - Help')
+    return input('Enter your move: ')
 
-    user_move = input('Enter your move: ')
-    if user_move == '?':
-        print(f"{GREEN}Here's a table displaying the winner depending on your and PC's moves:{RESET}")
-        table = Table(moves)
-        table.print_ascii_table()
-        print('Now please make a move')
-        make_move()
-    elif user_move == '0':
-        print('Game Over.')
-    elif user_move.isdigit() and int(user_move) in range(1, len(moves) + 1):
-        print('Your move:', moves[int(user_move) - 1])
-        print('Computer move:', computer.move)
-        print(winner(moves, computer.move_index, int(user_move) - 1) + '!')
-        print('HMAC key:', computer.key)
-    else:
-        print(f"{RED}Invalid input. You should choose from the menu provided below.{RESET}")
-        make_move()
+
+def send_table():
+    print(f"{GREEN}Here's a table displaying the winner depending on your and PC's moves:{RESET}")
+    table = Table(moves)
+    table.print_ascii_table()
+    print('Now please make a move')
+
+
+def make_move():
+    computer = Hmac(moves)
+    print('HMAC:', computer.get_hmac())
+
+    user_move = ''
+    while not (user_move.isdigit() and int(user_move) in range(1, len(moves) + 1)):
+        if user_move == '?':
+            send_table()
+        elif user_move == '0':
+            print('Game Over.')
+            return
+        elif user_move == '':
+            pass
+        else:
+            print(f"{RED}Invalid input. You should choose from the menu provided below.{RESET}")
+        user_move = send_menu()
+
+    print('Your move:', moves[int(user_move) - 1])
+    print('Computer move:', computer.move)
+    print(winner(moves, computer.move_index, int(user_move) - 1) + '!')
+    print('HMAC key:', computer.key)
 
 
 moves = sys.argv[1:]
